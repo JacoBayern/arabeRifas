@@ -9,13 +9,20 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login as auth_login, logout as auth_logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import SorteoForm
+from .forms import SorteoForm, PaymentForm
 import logging
 
 # Create your views here.
 
 def home(request):
-    return render(request, 'home.html')
+    form = PaymentForm()
+    sorteo = Sorteo.objects.filter(is_main=True).first()
+
+    context = {'form': form,
+               'sorteo': sorteo
+               }
+
+    return render(request, 'home.html', context)
 
 @login_required
 def sorteo_list(request):
@@ -139,3 +146,4 @@ def sorteo_edit(request, sorteo_id=None):
 
     context = {'form': form, 'page_title': page_title}
     return render(request, 'sorteo/sorteo_form.html', context)
+

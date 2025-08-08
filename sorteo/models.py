@@ -1,7 +1,7 @@
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
 from django.core.validators import MinLengthValidator
-
+import time
 # Create your models here.
 class Sorteo(models.Model):
     ESTATE = [
@@ -28,10 +28,34 @@ class Sorteo(models.Model):
         blank=True,
         help_text="Sube un video promocional del sorteo"
     )
+    is_main = models.BooleanField(
+        ("Sorteo Principal"),
+        default=False,
+        help_text="Marcar si este es el sorteo principal que se mostrará en la página de inicio. Solo uno puede ser principal."
+    )
 
     class Meta:
         verbose_name = 'Sorteo'
         verbose_name_plural = 'Sorteos'
+
+    def __str__(self):
+        return self.title
+
+
+class Premio(models.Model):
+    sorteo = models.ForeignKey(Sorteo, on_delete=models.CASCADE, related_name='premios', verbose_name="Sorteo")
+    name = models.CharField("Nombre del premio", max_length=100)
+    description = models.TextField("Descripción del premio")
+    position = models.PositiveIntegerField("Orden", help_text="El orden en que se mostrará el premio (1, 2, 3...)")
+    image = models.ImageField("Foto del premio", upload_to='premios_fotos/', blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Premio'
+        verbose_name_plural = 'Premios'
+        ordering = ['position']
+
+    def __str__(self):
+        return f"{self.name} ({self.sorteo.title})"
 
 
 class Ticket(models.Model):
@@ -53,8 +77,11 @@ class Payment(models.Model):
     #TODO signal para el update_at
     #TODO lógica para creación de tickets
     PAYMENT_METHODS = [
-        ('P', 'Pago Móvil')
+        ('P', 'Pago Móvil'),
+        ('Z', 'Zelle'),
+        ('E', 'Efectivo')
         ]
+    
     PAYMENT_STATES =[
         ('V', 'Verificado'),
         ('E', 'En Espera'),
@@ -66,6 +93,7 @@ class Payment(models.Model):
         ('E', 'Extranjero'),
         ('J', 'Jurídico'),
     ]
+
     BANK_CHOICES = [
         ('0102', 'Banco de Venezuela'),
         ('0104', 'Banco Venezolano de Crédito'),
@@ -107,8 +135,14 @@ class Payment(models.Model):
     transferred_date = models.DateField(("Fecha de transferencia"), auto_now=False, auto_now_add=False)
     type_CI = models.CharField(("Tipo de cédula"), max_length=1, choices=CI_TYPE_CHOICES, default='V')
     bank_of_transfer = models.CharField(("Banco de transferencia"), max_length=4, choices=BANK_CHOICES)
-    payment_verification_note = models.TextField(("Nota de verificación del pago"), blank=True, null=True)
-    is_payment_registered = models.BooleanField(("Pago registrado"), default=False, editable=False)
     class Meta:
         verbose_name = 'Pago'
         verbose_name_plural = 'Pagos'
+
+    def save(self, *args, **kwargs):
+        
+        if not self.serial:
+            self.serial = f"REF-{self.owner_ci[:4]}-{int(time.time())}"
+
+        super().save(*args, **kwargs)
+        

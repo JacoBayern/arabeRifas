@@ -1,4 +1,5 @@
-{% extends 'base.html' %} 
+{% extends 'base.html' %}
+{% load widget_tweaks %}
 {% load static %} 
 {% block title %}ArabeRifa{%endblock %} 
 {% block content %}
@@ -7,49 +8,133 @@
   <!-- Fila con los dos formularios (compra y verificación) -->
   <div class="row justify-content-center g-4 mt-3" style="max-width: 1000px; width: 100%;">
     <!-- Formulario de compra -->
-    <div class="col-12 col-md-6">
-      <div class="bg-color rounded-3 text-white p-3 p-md-4 h-100">
-        <form action="" class="px-1 py-1">
-          <h2 class="text-center mb-4">Compra tus boletos</h2>
-          <div class="mb-3">
-            <div class="row g-2 mb-2">
-              <div class="col-4">
-                <button type="button" class="btn btn-light w-100">+2</button>
+    <div class="d-flex flex-column align-items-center">
+    <div class="row justify-content-center g-4 mt-3" style="max-width: 1000px; width: 100%;">
+      <!-- Paso 1: Selección de boletos (visible inicialmente) -->
+      <div class="col-12 col-md-6">
+        <div class="bg-color rounded-3 text-white p-3 p-md-4 h-100">
+          <div id="step1" class="purchase-step">
+            <h2 class="text-center mb-4">Compra tus boletos</h2>
+            <div class="mb-3">
+              <div class="row g-2 mb-2">
+                <div class="col-4">
+                  <button type="button" class="btn btn-light w-100" onclick="addTickets(2)">+2</button>
+                </div>
+                <div class="col-4">
+                  <button type="button" class="btn btn-light w-100" onclick="addTickets(5)">+5</button>
+                </div>
+                <div class="col-4">
+                  <button type="button" class="btn btn-light w-100" onclick="addTickets(10)">+10</button>
+                </div>
               </div>
-              <div class="col-4">
-                <button type="button" class="btn btn-light w-100">+5</button>
-              </div>
-              <div class="col-4">
-                <button type="button" class="btn btn-light w-100">+10</button>
+
+              <div class="row g-2">
+                <div class="col-4">
+                  <button type="button" class="btn btn-light w-100" onclick="addTickets(20)">+20</button>
+                </div>
+                <div class="col-4">
+                  <button type="button" class="btn btn-light w-100" onclick="addTickets(30)">+30</button>
+                </div>
+                <div class="col-4">
+                  <button type="button" class="btn btn-light w-100" onclick="addTickets(50)">+50</button>
+                </div>
               </div>
             </div>
 
-            <div class="row g-2">
-              <div class="col-4">
-                <button type="button" class="btn btn-light w-100">+20</button>
+            <label for="tickets_quantity" class="form-label">Cantidad de Boletos</label>
+            <div class="d-flex justify-content-center align-items-center mb-3">
+              <button class="btn btn-light me-2" type="button" onclick="changeTickets(-1)" style="width: 40px; height: 38px;">-</button>
+              <input type="number" class="form-control text-center mx-2" id="tickets_quantity" name="tickets_quantity" value="1" min="1" style="width: 80px; height: 38px;">
+              <button class="btn btn-light ms-2" type="button" onclick="changeTickets(1)" style="width: 40px; height: 38px;">+</button>
+            </div>
+            
+            <div class="mb-3 p-3 bg-dark rounded">
+              <h4 class="text-center">Resumen de compra</h4>
+              <div class="d-flex justify-content-between">
+                <span>Precio por boleto:</span>
+                <span>Bs {{ sorteo.ticket_price }}</span>
               </div>
-              <div class="col-4">
-                <button type="button" class="btn btn-light w-100">+30</button>
+              <div class="d-flex justify-content-between">
+                <span>Cantidad:</span>
+                <span id="quantity-display">1</span>
               </div>
-              <div class="col-4">
-                <button type="button" class="btn btn-light w-100">+50</button>
+              <hr>
+              <div class="d-flex justify-content-between fw-bold">
+                <span>Total a pagar:</span>
+                <span id="total-amount">Bs {{ sorteo.ticket_price }}</span>
               </div>
             </div>
+            
+            <button type="button" class="btn w-100 btn-comprar" onclick="nextStep(1)">Comprar boletos</button>
+            <button type="button" class="btn btn-secondary w-100 mt-2" onclick="resetTickets()">Limpiar</button>
           </div>
 
-          <label for="name" class="form-label">Cantidad de Boletos</label>
-          <div class="d-flex justify-content-center align-items-center mb-3">
-            <button class="btn btn-light me-2" type="button" id="decrement" style="width: 40px; height: 38px;">
-              -
-            </button>
-            <input type="number" class="form-control text-center mx-2" id="name" value="1" style="width: 80px; height: 38px;">
-            <button class="btn btn-light ms-2" type="button" id="increment" style="width: 40px; height: 38px;">
-              +
-            </button>
+          <!-- Paso 2: Información del comprador (oculto inicialmente) -->
+          <div id="step2" class="purchase-step" style="display:none;">
+            <h2 class="text-center mb-4">Información del comprador</h2>
+            <form id="purchase-form" method="POST" action="#">
+              {% csrf_token %}
+              <input type="hidden" id="final_tickets_quantity" name="tickets_quantity" value="1">
+              
+              <div class="mb-3">
+                <label class="form-label">{{ form.owner_name.label_tag }}</label>
+                {{ form.owner_name|add_class:"form-control" }}
+              </div>
+              <div class="mb-3">
+                <label class="form-label">{{ form.type_CI.label_tag }}</label>
+                {{ form.type_CI|add_class:"form-select" }}
+              </div>
+              <div class="mb-3">
+                <label class="form-label">{{ form.owner_ci.label_tag }}</label>
+                {{ form.owner_ci|add_class:"form-control" }}
+              </div>
+              <div class="mb-3">
+                <label class="form-label">{{ form.owner_email.label_tag }}</label>
+                {{ form.owner_email|add_class:"form-control" }}
+              </div>
+              <div class="mb-3">
+                <label class="form-label">{{ form.owner_phone.label_tag }}</label>
+                {{ form.owner_phone|add_class:"form-control" }}
+              </div>
+              
+              <div class="d-flex justify-content-between">
+                <button type="button" class="btn btn-secondary" onclick="prevStep(2)">Atrás</button>
+                <button type="button" class="btn btn-comprar" onclick="nextStep(2)">Continuar</button>
+              </div>
+            </form>
           </div>
-          <button type="submit" class="btn w-100 btn-comprar">Comprar boletos</button>
-          <button class="btn btn-secondary w-100 mt-2">Limpiar</button>
-        </form>
+
+          <!-- Paso 3: Método de pago (oculto inicialmente) -->
+          <div id="step3" class="purchase-step" style="display:none;">
+            <h2 class="text-center mb-4">Método de pago</h2>
+            <div class="mb-3">
+              <label class="form-label">{{ form.method.label_tag }}</label>
+              {{ form.method|add_class:"form-select" }}
+            </div>
+            
+            <div id="bank-fields" style="display:none;">
+              <div class="mb-3">
+                <label class="form-label">{{ form.bank_of_transfer.label_tag }}</label>
+                {{ form.bank_of_transfer|add_class:"form-select" }}
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label class="form-label">{{ form.reference.label_tag }}</label>
+              {{ form.reference|add_class:"form-control" }}
+            </div>
+            <div class="mb-3">
+              <label class="form-label">{{ form.transferred_date.label_tag }}</label>
+              {{ form.transferred_date|add_class:"form-control" }}
+            </div>
+            
+            <div class="d-flex justify-content-between">
+              <button type="button" class="btn btn-secondary" onclick="prevStep(3)">Atrás</button>
+              <button type="submit" class="btn btn-comprar">Confirmar compra</button>
+            </div>
+          </div>
+        </div>
+      </div>
       </div>
     </div>
 

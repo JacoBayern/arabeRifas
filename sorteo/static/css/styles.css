@@ -1,0 +1,86 @@
+:root{
+    --primary-color: #293275;
+    --secondary-color: #93c0e9;
+    --white: #ffffff;
+}
+
+.animated-title {
+    animation: pulse-light 2.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse-light {
+    0%, 100% {
+      transform: scale(1);
+      text-shadow: 0 0 5px rgba(255, 255, 255, 0.7), 0 0 10px rgba(255, 215, 0, 0.7);
+    }
+    50% {
+      transform: scale(1.05);
+      text-shadow: 0 0 15px rgba(255, 255, 255, 1), 0 0 25px rgba(255, 215, 0, 1);
+    }
+  }
+
+
+.social-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            font-size: 2.5rem;
+}
+.social-btn:hover {
+    transform: scale(1.15);
+}
+.instagram { background: #E1306C; color: white; }
+.whatsapp { background: #25D366; color: white; }
+.facebook { background: #3b5998; color: white; }
+
+
+.btn-comprar{
+    animation: pulse 3s infinite;
+    background-color: var(--secondary-color);
+    border: none;
+    color: var(--primary-color);
+}
+
+.btn-comprar:hover{
+    background-color: #70a3d2;
+}
+
+.bg-color{
+    background-color: var(--primary-color);
+}
+
+.bg-secondary{
+    background-color: var(--secondary-color);
+}
+
+.btn-terms{
+    animation: pulse 3s infinite;
+    background-color: var(--primary-color);
+    border: none;
+    color: var(--white);
+}
+
+.btn-terms:hover{
+    background-color: #1f1f4d;
+    color: white;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+.btn-verify {
+    background-color: var(--secondary-color);
+    border: none;
+    color: var(--primary-color);
+}
+
+
+.btn-verify:hover{
+    background-color: #70a3d2;
+}

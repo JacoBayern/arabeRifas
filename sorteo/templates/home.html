@@ -1,0 +1,191 @@
+{% extends 'base.html' %} 
+{% load static %} 
+{% block title %}ArabeRifa{%endblock %} 
+{% block content %}
+<main>
+  <div class="d-flex flex-column align-items-center">
+  <!-- Fila con los dos formularios (compra y verificación) -->
+  <div class="row justify-content-center g-4 mt-3" style="max-width: 1000px; width: 100%;">
+    <!-- Formulario de compra -->
+    <div class="col-12 col-md-6">
+      <div class="bg-color rounded-3 text-white p-3 p-md-4 h-100">
+        <form action="" class="px-1 py-1">
+          <h2 class="text-center mb-4">Compra tus boletos</h2>
+          <div class="mb-3">
+            <div class="row g-2 mb-2">
+              <div class="col-4">
+                <button type="button" class="btn btn-light w-100">+2</button>
+              </div>
+              <div class="col-4">
+                <button type="button" class="btn btn-light w-100">+5</button>
+              </div>
+              <div class="col-4">
+                <button type="button" class="btn btn-light w-100">+10</button>
+              </div>
+            </div>
+
+            <div class="row g-2">
+              <div class="col-4">
+                <button type="button" class="btn btn-light w-100">+20</button>
+              </div>
+              <div class="col-4">
+                <button type="button" class="btn btn-light w-100">+30</button>
+              </div>
+              <div class="col-4">
+                <button type="button" class="btn btn-light w-100">+50</button>
+              </div>
+            </div>
+          </div>
+
+          <label for="name" class="form-label">Cantidad de Boletos</label>
+          <div class="d-flex justify-content-center align-items-center mb-3">
+            <button class="btn btn-light me-2" type="button" id="decrement" style="width: 40px; height: 38px;">
+              -
+            </button>
+            <input type="number" class="form-control text-center mx-2" id="name" value="1" style="width: 80px; height: 38px;">
+            <button class="btn btn-light ms-2" type="button" id="increment" style="width: 40px; height: 38px;">
+              +
+            </button>
+          </div>
+          <button type="submit" class="btn w-100 btn-comprar">Comprar boletos</button>
+          <button class="btn btn-secondary w-100 mt-2">Limpiar</button>
+        </form>
+      </div>
+    </div>
+
+
+  <!-- Formulario de VERIFICACIÓN (derecha) -->
+   <div class="col-12 col-md-6 d-flex align-items-center"> <!-- Contenedor flex centrado -->
+    <div class="bg-color rounded-3 text-white p-3 p-md-4 w-100"> <!-- Ancho completo -->
+      <h2 class="text-center mb-3">Verifica tus boletos</h2>
+      <form action="">
+        <div class="mb-3">
+          <input
+            type="text"
+            class="form-control"
+            id="tickets_verify"
+            placeholder="Ingresa tu correo o cédula"
+          >
+        </div>
+        <button type="submit" class="btn btn-verify w-100">Verificar</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+  <!-- Términos y condiciones -->
+  <div class="text-center text-dark mt-4 mb-4 px-3" style="max-width: 800px;">
+    <p class="mb-0 fw-bold">
+      Antes de participar, asegúrate de haber leído los Términos y
+      Condiciones. Una vez completes tu reserva y aparezcan tus números, toma
+      una captura de pantalla y guárdala como respaldo en caso de resultar
+      ganador.
+    </p>
+  </div>
+
+  <!-- Barra de progreso -->
+  <div class="bg-color rounded-3 text-white p-3 mt-3 mb-3" style="width: 100%; max-width: 500px">
+    <h3 class="text-center mb-2">Porcentaje vendido</h3>
+    <div class="progress position-relative" style="height: 30px">
+      <div class="progress-bar bg-info progress-bar-striped progress-bar-animated"
+           style="width: 15%"
+           aria-valuenow="15"
+           aria-valuemin="0"
+           aria-valuemax="100"></div>
+      <div class="position-absolute w-100 text-center fw-bold"
+           style="line-height: 30px; text-shadow: 0 0 3px #000">
+        966 vendidos de 10.000 (15%)
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div class="bg-color text-white">
+    <div class="row justify-content-start">
+      <div
+        class="col-12 col-md-5 offset-md-1 order-md-1 order-1 mt-3 mt-md-5 my-sm-3 mx-sm-4"
+      >
+        <img
+          src="{% static 'images/fondo.jpg' %}"
+          alt=""
+          class="rounded-3 img-fluid"
+          style="max-width: 95%"
+        />
+      </div>
+      <div class="col-12 col-md-6 order-md-2 order-2 mt-1 mx-sm-3 my-sm-3">
+        <h1 class="display-4 animated-title"><strong>COMBO JAGUAR</strong></h1>
+        <p class="">Participa y gana increíbles premios.</p>
+        <div class="fs-3">
+          <p>
+            <strong
+              >Para participar, la compra mínima es de 2 tickets – Precio: Bs
+              90,00</strong
+            >
+          </p>
+          <p><strong>Premios</strong></p>
+          <p>
+            <strong>Primer premio:</strong> Moto Toro Jaguar negra 2025 0 km
+            (10:00 p. m.) con casco Edge + 24 cervezas + maleta + porta celular
+          </p>
+          <p>
+            <strong>Segundo premio:</strong> Moto Toro Jaguar blanca 2025 0 km
+            (4:00 p. m.) con casco Fox + chaqueta + porta celular
+          </p>
+          <p>
+            <strong>Tercer premio:</strong> Moto Toro Jaguar roja 2025 0 km
+            (1:00 p. m.) con casco Fox + porta celular
+          </p>
+          <p>
+            <strong
+              >Juega por la Lotería del Táchira, sorteos SUPER GANA</strong
+            >
+          </p>
+          <p>
+            5 tickets premiados (2323, 1234, 0999, 5554, 8877)<br />Con US$20.00
+            c/u – transferencia inmediata
+          </p>
+          <p>US$100.00 al comprador de más tickets – transferencia inmediata</p>
+          <p>
+            <strong
+              >Fecha del sorteo al alcanzar el 80 % de tickets vendidos</strong
+            >
+          </p>
+          <p>¡Gana con ArabeRifas!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="p-4">
+    <div class="d-flex justify-content-center mt-4 mb-2 px-3" style="max-width: 800px; width: 100%; margin: 0 auto;">
+      <video class="rounded-3 w-100" controls>
+        <source src="{% static '/images/moto.mp4' %}" type="video/mp4" />
+        Tu navegador no soporta la etiqueta de video.
+      </video>
+    </div>
+  </div>
+ 
+  <div class='bg-color p-3'>
+    <div class="bg-color d-flex flex-column align-items-center mt-3 p3">
+  <button class="btn btn-verify  py-2 px-4 fs-5 btn-terms">
+    <i class="bi bi-pencil-square me-2 fs-4 mb-3"></i>Términos y Condiciones
+  </button>
+  </div>
+   <div class="container text-center my-5">
+        <div class="d-flex justify-content-center">
+            <a href="#" class="social-btn facebook">
+                <i class="bi bi-facebook"></i>
+            </a>
+            <a href="#" class="social-btn instagram">
+              <i class="bi bi-instagram"></i>            
+            </a>
+            <a href="#" class="social-btn whatsapp">
+                <i class="bi bi-whatsapp"></i>
+            </a>
+        </div>
+        <h3 class="text-white mt-3">No olvides seguirnos en nuestras redes!</h3>
+    </div>
+  </div>
+  
+</main>
+{% endblock %}

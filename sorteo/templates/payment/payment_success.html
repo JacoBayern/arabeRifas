@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5 mb-5 text-center">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-5">
+                    <i class="fas fa-check-circle text-success fa-4x mb-3"></i>
+                    <h1 class="card-title">¡Pago Registrado con Éxito!</h1>
+                    <p class="lead">
+                        Hemos recibido tu reporte de pago y lo estamos verificando.
+                        Recibirás una confirmación por correo electrónico una vez que tus boletos sean asignados.
+                    </p>
+                    <hr>
+                    <div class="alert alert-info">
+                        <h5 class="alert-heading">Detalles de tu Compra</h5>
+                        <p><strong>Número de Referencia de tu compra:</strong> {{ payment.serial }}</p>
+                        <p class="mb-0">Por favor, guarda este número como referencia para futuras consultas.</p>
+                    </div>
+                    <a href="{% url 'home' %}" class="btn btn-primary mt-3">Volver al Inicio</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,10 +1,20 @@
 from django import forms
-from .models import Payment, Sorteo
+from .models import Payment, Sorteo, Premio
 
 class SorteoForm(forms.ModelForm):
     class Meta:
         model = Sorteo
         fields = '__all__'
+
+class PremioForm(forms.ModelForm):
+    class Meta:
+        model = Premio
+        fields = ['name', 'description', 'position']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+            'position': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
 
 class PaymentForm(forms.ModelForm):
     """
@@ -60,10 +70,36 @@ class PaymentForm(forms.ModelForm):
     class Meta:
         model = Payment
         fields = [
-            'tickets_quantity', 'owner_name', 'owner_ci', 'owner_email',
-            'owner_phone', 'type_CI', 'bank_of_transfer', 'reference',
+            'tickets_quantity', 'owner_name', 'type_CI', 'owner_ci', 'owner_email',
+            'owner_phone', 'method', 'bank_of_transfer', 'reference',
             'transferred_date', 'transferred_amount'
         ]
         widgets = {
             'owner_phone': forms.TextInput(attrs={'placeholder': '+584121234567'}),
+        }
+        
+class AdminPaymentForm(forms.ModelForm):
+    """
+    Formulario para que un administrador añada un pago manualmente.
+    """
+    class Meta:
+        model = Payment
+        fields = [
+            'sorteo', 'owner_name', 'type_CI', 'owner_ci', 'owner_email',
+            'owner_phone', 'method', 'bank_of_transfer', 'reference',
+            'transferred_date', 'transferred_amount', 'tickets_quantity'
+        ]
+        widgets = {
+            'sorteo': forms.Select(attrs={'class': 'form-select'}),
+            'owner_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'type_CI': forms.Select(attrs={'class': 'form-select'}),
+            'owner_ci': forms.TextInput(attrs={'class': 'form-control'}),
+            'owner_email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'owner_phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '04121234567'}),
+            'method': forms.Select(attrs={'class': 'form-select'}),
+            'bank_of_transfer': forms.Select(attrs={'class': 'form-select'}),
+            'reference': forms.TextInput(attrs={'class': 'form-control'}),
+            'transferred_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'transferred_amount': forms.NumberInput(attrs={'class': 'form-control'}),
+            'tickets_quantity': forms.NumberInput(attrs={'class': 'form-control'}),
         }

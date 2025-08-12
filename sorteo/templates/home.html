@@ -1,276 +1,407 @@
-{% extends 'base.html' %}
-{% load widget_tweaks %}
+{% extends 'base.html' %} {% load widget_tweaks %} 
 {% load static %} 
 {% block title %}ArabeRifa{%endblock %} 
 {% block content %}
 <main>
-  <div class="d-flex flex-column align-items-center">
-  <!-- Fila con los dos formularios (compra y verificación) -->
-  <div class="row justify-content-center g-4 mt-3" style="max-width: 1000px; width: 100%;">
-    <!-- Formulario de compra -->
-    <div class="d-flex flex-column align-items-center">
-    <div class="row justify-content-center g-4 mt-3" style="max-width: 1000px; width: 100%;">
-      <!-- Paso 1: Selección de boletos (visible inicialmente) -->
-      <div class="col-12 col-md-6">
-        <div class="bg-color rounded-3 text-white p-3 p-md-4 h-100">
-          <div id="step1" class="purchase-step">
-            <h2 class="text-center mb-4">Compra tus boletos</h2>
-            <div class="mb-3">
-              <div class="row g-2 mb-2">
-                <div class="col-4">
-                  <button type="button" class="btn btn-light w-100" onclick="addTickets(2)">+2</button>
-                </div>
-                <div class="col-4">
-                  <button type="button" class="btn btn-light w-100" onclick="addTickets(5)">+5</button>
-                </div>
-                <div class="col-4">
-                  <button type="button" class="btn btn-light w-100" onclick="addTickets(10)">+10</button>
-                </div>
-              </div>
-
-              <div class="row g-2">
-                <div class="col-4">
-                  <button type="button" class="btn btn-light w-100" onclick="addTickets(20)">+20</button>
-                </div>
-                <div class="col-4">
-                  <button type="button" class="btn btn-light w-100" onclick="addTickets(30)">+30</button>
-                </div>
-                <div class="col-4">
-                  <button type="button" class="btn btn-light w-100" onclick="addTickets(50)">+50</button>
-                </div>
-              </div>
-            </div>
-
-            <label for="tickets_quantity" class="form-label">Cantidad de Boletos</label>
-            <div class="d-flex justify-content-center align-items-center mb-3">
-              <button class="btn btn-light me-2" type="button" onclick="changeTickets(-1)" style="width: 40px; height: 38px;">-</button>
-              <input type="number" class="form-control text-center mx-2" id="tickets_quantity" name="tickets_quantity" value="1" min="1" style="width: 80px; height: 38px;">
-              <button class="btn btn-light ms-2" type="button" onclick="changeTickets(1)" style="width: 40px; height: 38px;">+</button>
-            </div>
-            
-            <div class="mb-3 p-3 bg-dark rounded">
-              <h4 class="text-center">Resumen de compra</h4>
-              <div class="d-flex justify-content-between">
-                <span>Precio por boleto:</span>
-                <span>Bs {{ sorteo.ticket_price }}</span>
-              </div>
-              <div class="d-flex justify-content-between">
-                <span>Cantidad:</span>
-                <span id="quantity-display">1</span>
-              </div>
-              <hr>
-              <div class="d-flex justify-content-between fw-bold">
-                <span>Total a pagar:</span>
-                <span id="total-amount">Bs {{ sorteo.ticket_price }}</span>
-              </div>
-            </div>
-            
-            <button type="button" class="btn w-100 btn-comprar" onclick="nextStep(1)">Comprar boletos</button>
-            <button type="button" class="btn btn-secondary w-100 mt-2" onclick="resetTickets()">Limpiar</button>
-          </div>
-
-          <!-- Paso 2: Información del comprador (oculto inicialmente) -->
-          <div id="step2" class="purchase-step" style="display:none;">
-            <h2 class="text-center mb-4">Información del comprador</h2>
-            <form id="purchase-form" method="POST" action="#">
-              {% csrf_token %}
-              <input type="hidden" id="final_tickets_quantity" name="tickets_quantity" value="1">
-              
-              <div class="mb-3">
-                <label class="form-label">{{ form.owner_name.label_tag }}</label>
-                {{ form.owner_name|add_class:"form-control" }}
-              </div>
-              <div class="mb-3">
-                <label class="form-label">{{ form.type_CI.label_tag }}</label>
-                {{ form.type_CI|add_class:"form-select" }}
-              </div>
-              <div class="mb-3">
-                <label class="form-label">{{ form.owner_ci.label_tag }}</label>
-                {{ form.owner_ci|add_class:"form-control" }}
-              </div>
-              <div class="mb-3">
-                <label class="form-label">{{ form.owner_email.label_tag }}</label>
-                {{ form.owner_email|add_class:"form-control" }}
-              </div>
-              <div class="mb-3">
-                <label class="form-label">{{ form.owner_phone.label_tag }}</label>
-                {{ form.owner_phone|add_class:"form-control" }}
-              </div>
-              
-              <div class="d-flex justify-content-between">
-                <button type="button" class="btn btn-secondary" onclick="prevStep(2)">Atrás</button>
-                <button type="button" class="btn btn-comprar" onclick="nextStep(2)">Continuar</button>
-              </div>
-            </form>
-          </div>
-
-          <!-- Paso 3: Método de pago (oculto inicialmente) -->
-          <div id="step3" class="purchase-step" style="display:none;">
-            <h2 class="text-center mb-4">Método de pago</h2>
-            <div class="mb-3">
-              <label class="form-label">{{ form.method.label_tag }}</label>
-              {{ form.method|add_class:"form-select" }}
-            </div>
-            
-            <div id="bank-fields" style="display:none;">
-              <div class="mb-3">
-                <label class="form-label">{{ form.bank_of_transfer.label_tag }}</label>
-                {{ form.bank_of_transfer|add_class:"form-select" }}
-              </div>
-            </div>
-            
-            <div class="mb-3">
-              <label class="form-label">{{ form.reference.label_tag }}</label>
-              {{ form.reference|add_class:"form-control" }}
-            </div>
-            <div class="mb-3">
-              <label class="form-label">{{ form.transferred_date.label_tag }}</label>
-              {{ form.transferred_date|add_class:"form-control" }}
-            </div>
-            
-            <div class="d-flex justify-content-between">
-              <button type="button" class="btn btn-secondary" onclick="prevStep(3)">Atrás</button>
-              <button type="submit" class="btn btn-comprar">Confirmar compra</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      </div>
-    </div>
+{% if sorteo %}
 
 
-  <!-- Formulario de VERIFICACIÓN (derecha) -->
-   <div class="col-12 col-md-6 d-flex align-items-center"> <!-- Contenedor flex centrado -->
-    <div class="bg-color rounded-3 text-white p-3 p-md-4 w-100"> <!-- Ancho completo -->
-      <h2 class="text-center mb-3">Verifica tus boletos</h2>
-      <form action="">
-        <div class="mb-3">
-          <input
-            type="text"
-            class="form-control"
-            id="tickets_verify"
-            placeholder="Ingresa tu correo o cédula"
-          >
-        </div>
-        <button type="submit" class="btn btn-verify w-100">Verificar</button>
-      </form>
-    </div>
-  </div>
-</div>
-
-  <!-- Términos y condiciones -->
-  <div class="text-center text-dark mt-4 mb-4 px-3" style="max-width: 800px;">
-    <p class="mb-0 fw-bold">
-      Antes de participar, asegúrate de haber leído los Términos y
-      Condiciones. Una vez completes tu reserva y aparezcan tus números, toma
-      una captura de pantalla y guárdala como respaldo en caso de resultar
-      ganador.
-    </p>
-  </div>
-
-  <!-- Barra de progreso -->
-  <div class="bg-color rounded-3 text-white p-3 mt-3 mb-3" style="width: 100%; max-width: 500px">
-    <h3 class="text-center mb-2">Porcentaje vendido</h3>
-    <div class="progress position-relative" style="height: 30px">
-      <div class="progress-bar bg-info progress-bar-striped progress-bar-animated"
-           style="width: 15%"
-           aria-valuenow="15"
-           aria-valuemin="0"
-           aria-valuemax="100"></div>
-      <div class="position-absolute w-100 text-center fw-bold"
-           style="line-height: 30px; text-shadow: 0 0 3px #000">
-        966 vendidos de 10.000 (15%)
-      </div>
-    </div>
-  </div>
-</div>
-
-  <div class="bg-color text-white">
+  <div class="bg-color text-white scroll-reveal">
     <div class="row justify-content-start">
       <div
         class="col-12 col-md-5 offset-md-1 order-md-1 order-1 mt-3 mt-md-5 my-sm-3 mx-sm-4"
       >
-        <img
-          src="{% static 'images/fondo.jpg' %}"
-          alt=""
-          class="rounded-3 img-fluid"
-          style="max-width: 95%"
-        />
+        {% if sorteo and sorteo.prize_picture %}
+          <img
+            src="{{ sorteo.prize_picture.url }}"
+            alt="Premio principal: {{ sorteo.title }}"
+            class="rounded-3 img-fluid"
+            style="max-width: 95%"
+          />
+        {% endif %}
       </div>
       <div class="col-12 col-md-6 order-md-2 order-2 mt-1 mx-sm-3 my-sm-3">
-        <h1 class="display-4 animated-title"><strong>COMBO JAGUAR</strong></h1>
+        <h1 class="display-4 animated-title"><strong>{{sorteo.title}}</strong></h1>
         <p class="">Participa y gana increíbles premios.</p>
         <div class="fs-3">
-          <p>
+          {% if sorteo.minimun_tickets_buy %}
+             <p>
             <strong
-              >Para participar, la compra mínima es de 2 tickets – Precio: Bs
-              90,00</strong
+              >Para participar, la compra mínima es de {{sorteo.minimun_tickets_buy}} tickets – Precio: Bs
+              {{sorteo.ticket_price}}</strong
             >
-          </p>
+           </p>
+          {% endif %}
           <p><strong>Premios</strong></p>
-          <p>
-            <strong>Primer premio:</strong> Moto Toro Jaguar negra 2025 0 km
-            (10:00 p. m.) con casco Edge + 24 cervezas + maleta + porta celular
-          </p>
-          <p>
-            <strong>Segundo premio:</strong> Moto Toro Jaguar blanca 2025 0 km
-            (4:00 p. m.) con casco Fox + chaqueta + porta celular
-          </p>
-          <p>
-            <strong>Tercer premio:</strong> Moto Toro Jaguar roja 2025 0 km
-            (1:00 p. m.) con casco Fox + porta celular
-          </p>
-          <p>
-            <strong
-              >Juega por la Lotería del Táchira, sorteos SUPER GANA</strong
-            >
-          </p>
-          <p>
-            5 tickets premiados (2323, 1234, 0999, 5554, 8877)<br />Con US$20.00
-            c/u – transferencia inmediata
-          </p>
-          <p>US$100.00 al comprador de más tickets – transferencia inmediata</p>
-          <p>
-            <strong
-              >Fecha del sorteo al alcanzar el 80 % de tickets vendidos</strong
-            >
-          </p>
-          <p>¡Gana con ArabeRifas!</p>
+          {% for premio in premios  %}
+            <p>
+            <strong>{{premio.name}}: </strong> {{sorteo.description}}
+            </p>
+          {% endfor %}
+          {% if sorteo.display_date %}
+          <p><strong>Fecha del sorteo: {{ sorteo.display_date }}</strong></p>
+          {% endif %}
+          <p>¡Gana con ArabeGana!</p>
         </div>
       </div>
     </div>
   </div>
-  
-  <div class="p-4">
-    <div class="d-flex justify-content-center mt-4 mb-2 px-3" style="max-width: 800px; width: 100%; margin: 0 auto;">
-      <video class="rounded-3 w-100" controls>
-        <source src="{% static '/images/moto.mp4' %}" type="video/mp4" />
-        Tu navegador no soporta la etiqueta de video.
-      </video>
-    </div>
-  </div>
- 
-  <div class='bg-color p-3'>
-    <div class="bg-color d-flex flex-column align-items-center mt-3 p3">
-  <button class="btn btn-verify  py-2 px-4 fs-5 btn-terms">
-    <i class="bi bi-pencil-square me-2 fs-4 mb-3"></i>Términos y Condiciones
-  </button>
-  </div>
-   <div class="container text-center my-5">
-        <div class="d-flex justify-content-center">
-            <a href="#" class="social-btn facebook">
-                <i class="bi bi-facebook"></i>
-            </a>
-            <a href="#" class="social-btn instagram">
-              <i class="bi bi-instagram"></i>            
-            </a>
-            <a href="#" class="social-btn whatsapp">
-                <i class="bi bi-whatsapp"></i>
-            </a>
+
+  <div class="d-flex flex-column align-items-center scroll-reveal">
+    <div class="row justify-content-center g-4 mt-3" style="max-width: 1000px; width: 100%">
+        <div class="col-12 col-md-6">
+            <div class="bg-color rounded-3 text-white p-3 p-md-4 h-100">
+                <form id="purchase-form" method="POST" action="{% url 'process_payment' sorteo.slug %}">
+                    {% csrf_token %}
+                    <input type="hidden" id="final_tickets_quantity" name="tickets_quantity" value="1" />
+
+                <div id="step1" class="purchase-step" {% if sorteo %}data-ticket-price="{{ sorteo.ticket_price }}" data-minimum-tickets="{{ sorteo.minimun_tickets_buy|default:0 }}"{% endif %}>
+                    <h2 class="text-center mb-4">Compra tus boletos</h2>
+                    <div class="mb-3">
+                        <div class="row g-2 mb-2">
+                            <div class="col-4">
+                                <button
+                                    type="button"
+                                    class="btn btn-light w-100"
+                                    onclick="addTickets(2)"
+                                >
+                                    +2
+                                </button>
+                            </div>
+                            <div class="col-4">
+                                <button
+                                    type="button"
+                                    class="btn btn-light w-100"
+                                    onclick="addTickets(5)"
+                                >
+                                    +5
+                                </button>
+                            </div>
+                            <div class="col-4">
+                                <button
+                                    type="button"
+                                    class="btn btn-light w-100"
+                                    onclick="addTickets(10)"
+                                >
+                                    +10
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col-4">
+                                <button
+                                    type="button"
+                                    class="btn btn-light w-100"
+                                    onclick="addTickets(20)"
+                                >
+                                    +20
+                                </button>
+                            </div>
+                            <div class="col-4">
+                                <button
+                                    type="button"
+                                    class="btn btn-light w-100"
+                                    onclick="addTickets(30)"
+                                >
+                                    +30
+                                </button>
+                            </div>
+                            <div class="col-4">
+                                <button
+                                    type="button"
+                                    class="btn btn-light w-100"
+                                    onclick="addTickets(50)"
+                                >
+                                    +50
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <label for="tickets_quantity" class="form-label">Cantidad de Boletos</label>
+                    <div class="d-flex justify-content-center align-items-center mb-3">
+                        <button
+                            class="btn btn-light me-2"
+                            type="button"
+                            onclick="changeTickets(-1)"
+                            style="width: 40px; height: 38px"
+                        >
+                            -
+                        </button>
+                        <input
+                            type="number"
+                            class="form-control text-center mx-2"
+                            id="tickets_quantity"
+                            name="tickets_quantity"
+                            value="1"
+                            min="1"
+                            style="width: 80px; height: 38px"
+                        />
+                        <button
+                            class="btn btn-light ms-2"
+                            type="button"
+                            onclick="changeTickets(1)"
+                            style="width: 40px; height: 38px"
+                        >
+                            +
+                        </button>
+                    </div>
+                    <div id="quantity-error" class="invalid-feedback d-block text-center mb-2" style="min-height: 1.2rem;"></div>
+
+                    <div class="mb-3 p-3 bg-dark rounded">
+                        <h4 class="text-center">Resumen de compra</h4>
+                          {% if sorteo.minimun_tickets_buy %}
+                            <div class="d-flex justify-content-between">
+                              <span>Cantidad mínima de boletos:</span>
+                            <span>{{ sorteo.minimun_tickets_buy }} boletos</span>
+                        </div>
+                         {% endif %}
+                           
+                        <div class="d-flex justify-content-between">
+                            <span>Precio por boleto:</span>
+                            <span>Bs {{ sorteo.ticket_price }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Cantidad:</span>
+                            <span id="quantity-display">1</span>
+                        </div>
+                        <hr />
+                        <div class="d-flex justify-content-between fw-bold">
+                            <span>Total a pagar:</span>
+                            <span id="total-amount">Bs {{ sorteo.ticket_price }}</span>
+                        </div>
+                    </div>
+
+                    <button
+                        type="button"
+                        class="btn w-100 btn-comprar"
+                        onclick="nextStep(1)"
+                    >
+                        Comprar boletos
+                    </button>
+                    <button
+                        type="button"
+                        class="btn btn-secondary w-100 mt-2"
+                        onclick="resetTickets()"
+                    >
+                        Limpiar
+                    </button>
+                </div>
+
+                <div id="step2" class="purchase-step" style="display: none">
+                    <h2 class="text-center mb-4">Información del comprador</h2>
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.owner_name.label_tag }}</label>
+                            {{ form.owner_name|add_class:"form-control" }}
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.type_CI.label_tag }}</label>
+                            {{ form.type_CI|add_class:"form-select" }}
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.owner_ci.label_tag }}</label>
+                            {{ form.owner_ci|add_class:"form-control" }}
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.owner_email.label_tag }}</label>
+                            {{ form.owner_email|add_class:"form-control" }}
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.owner_phone.label_tag }}</label>
+                            {{ form.owner_phone|add_class:"form-control" }}
+                            <div class="invalid-feedback"></div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <button
+                                type="button"
+                                class="btn btn-secondary"
+                                onclick="prevStep(2)"
+                            >
+                                Atrás
+                            </button>
+                            <button
+                                type="button"
+                                class="btn btn-comprar"
+                                onclick="nextStep(2)"
+                            >
+                                Continuar
+                            </button>
+                        </div>
+                </div>
+
+                <div id="step3" class="purchase-step" style="display: none;">
+                    <h2 class="text-center mb-4">Realiza tu pago</h2>
+                    <p class="text-center">Por favor, realiza la transferencia a los siguientes datos de Pago Móvil y luego reporta tu pago en el siguiente paso.</p>
+                    
+                    <div class="alert alert-info">
+                        <p class="mb-1"><strong>Banco:</strong> BANCO MERCANTIL</p>
+                        <p class="mb-1"><strong>C.I.:</strong> V-10.840.285</p>
+                        <p class="mb-1"><strong>Teléfono:</strong> 0416-6568942</p>
+                    </div>
+
+                    <div class="d-flex justify-content-between fw-bold fs-5 mt-3">
+                        <span>Total a pagar:</span>
+                        <span id="total-amount-step3">Bs 0.00</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="button" class="btn btn-secondary" onclick="prevStep(3)">
+                            Atrás
+                        </button>
+                        <button type="button" class="btn btn-comprar" onclick="nextStep(3)">
+                            Ya pagué, continuar
+                        </button>
+                    </div>
+                </div>
+
+                <div id="step4" class="purchase-step" style="display: none">
+                    <h2 class="text-center mb-4">Reporta tu Pago Móvil</h2>
+                    <input type="hidden" name="method" value="P">
+
+                    <div id="bank-fields">
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.bank_of_transfer.label_tag }}</label>
+                            {{ form.bank_of_transfer|add_class:"form-select" }}
+                            <div class="invalid-feedback"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.reference.label_tag }}</label>
+                        {{ form.reference|add_class:"form-control" }}
+                        <div class="invalid-feedback"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.transferred_date.label_tag }}</label>
+                        {{ form.transferred_date|add_class:"form-control" }}
+                        <div class="invalid-feedback"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.transferred_amount.label_tag }}</label>
+                        {{ form.transferred_amount|add_class:"form-control"|attr:"placeholder:0.00" }}
+                        <div class="invalid-feedback"></div>
+                        <small class="form-text text-muted">Introduce el monto exacto que transferiste.</small>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-secondary" onclick="prevStep(4)">
+                            Atrás
+                        </button>
+                        <button type="submit" class="btn btn-comprar">
+                            Confirmar compra
+                        </button>
+                    </div>
+                </div>
+                </form>
+            </div>
         </div>
-        <h3 class="text-white mt-3">No olvides seguirnos en nuestras redes!</h3>
+
+        <div class="col-12 col-md-6 d-flex align-items-start">
+            <div class="bg-color rounded-3 text-white p-3 p-md-4 w-100">
+                <h2 class="text-center mb-3">Verifica tus boletos</h2>
+                <form action="{% url 'verify_tickets' %}" method="GET">
+                    <div class="mb-3">
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="tickets_verify"
+                            name="q"
+                            placeholder="Ingresa tu correo o cédula"
+                            required
+                        />
+                    </div>
+                    <button type="submit" class="btn btn-verify w-100">
+                        Verificar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center text-dark mt-4 mb-4 px-3" style="max-width: 800px">
+      <p class="mb-0 fw-bold">
+        Antes de participar, asegúrate de haber leído los Términos y
+        Condiciones. Una vez completes tu reserva y aparezcan tus números, toma
+        una captura de pantalla y guárdala como respaldo en caso de resultar
+        ganador.
+      </p>
+    </div>
+
+    <div
+      class="bg-color rounded-3 text-white p-3 mt-3 mb-3 scroll-reveal"
+      style="width: 100%; max-width: 500px"
+    >
+      <h3 class="text-center mb-2">Porcentaje vendido</h3>
+      <div class="progress position-relative" style="height: 30px">
+        <div
+          class="progress-bar  bg-secondarycolor"
+          style="width: {{sorteo.percentage_sold}}%"
+          aria-valuenow="{{sorteo.percentage_sold}}"
+          aria-valuemin="0"
+          aria-valuemax="100"
+        ></div>
+        <div
+          class="position-absolute w-100 text-center text-dark fw-bold"
+          style="line-height: 30px; text-shadow: 0 0 3px #000"
+        >
+         {{sorteo.percentage_sold}}%
+        </div>
+      </div>
     </div>
   </div>
-  
+
+  <div class="p-4 scroll-reveal">
+    <div
+      class="d-flex justify-content-center mt-4 mb-2 px-3 "
+      style="max-width: 800px; width: 100%; margin: 0 auto"
+    >
+      {% if sorteo and sorteo.video_promo %}
+        <video class="rounded-3 w-100" controls>
+          <source src="{{ sorteo.video_promo.url }}" type="video/mp4" />
+          Tu navegador no soporta la etiqueta de video.
+        </video>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="bg-color p-3 scroll-reveal">
+    <div class="bg-color d-flex flex-column align-items-center mt-3 p3">
+      <button class="btn btn-verify py-2 px-4 fs-5 btn-terms">
+        <i class="bi bi-pencil-square me-2 fs-4 mb-3"></i>Términos y Condiciones
+      </button>
+    </div>
+    <div class="container text-center my-5">
+      <div class="d-flex justify-content-center">
+        <a href="https://www.instagram.com/arabeshop.ve" class="social-btn instagram">
+          <i class="bi bi-instagram"></i>
+        </a>
+        <a href="https://wa.link/ye90pz" class="social-btn whatsapp">
+          <i class="bi bi-whatsapp"></i>
+        </a>
+      </div>
+      <h3 class="text-white mt-3">No olvides seguirnos en nuestras redes!</h3>
+    </div>
+  </div>
+
+{% else %}
+<div class="container text-center my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-5">
+                    <h1 class="card-title">¡Bienvenido!</h1>
+                    <p class="lead">Actualmente no hay ningún sorteo activo.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 </main>
 {% endblock %}

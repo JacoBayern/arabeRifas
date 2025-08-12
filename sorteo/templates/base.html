@@ -11,20 +11,17 @@
 </head>
 <body>
   <header class="">
-    <nav class="navbar navbar-expand-lg navbar-light bg-color" style="min-height: 150px;"> <!-- NAVBAR EXTRA ALTO -->
-        <div class="container-fluid px-5"> <!-- MÁS MARGEN LATERAL -->
-            <!-- CONTENEDOR FLEXIBLE PARA CENTRAR PERFECTO -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-color" style="min-height: 150px;">
+        <div class="container-fluid px-5"> 
             <div class="d-flex justify-content-center align-items-center w-100 position-relative" style="height: 150px;">
                 
-                <!-- LOGO GIGANTE (pero controlado) -->
-                <a class="navbar-brand p-0 mx-auto" href="#" style="height: 130px;"> <!-- 130px de alto -->
-                    <img src="{% static 'images/araberifa.png' %}" 
+                <a class="navbar-brand p-0 mx-auto" href="{% url "home" %}" style="height: 130px;"> <!-- 130px de alto -->
+                    <img src="{% static 'images/arabegana.png' %}" 
                          alt="ArabeRifa" 
                          class="h-100 w-auto" 
                          style="max-width: 500px; min-width: 300px; object-fit: contain;"> <!-- ANCHO MÁXIMO 500px -->
                 </a>
                 
-                <!-- MENÚ ADMIN (posición fija derecha) -->
                 {% if user.is_authenticated and user.is_staff %}
                 <div class="dropdown">
                     <button class="btn btn-outline-light dropdown-toggle" type="button" id="adminMenu" data-bs-toggle="dropdown" aria-expanded="false">
@@ -46,7 +43,7 @@
     <script src="{% static '/js/payment.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
+    {% block extra_js %}{% endblock extra_js %}
     <footer class="bg-dark text-white py-3">
       <div class="container">
         <div class="row">

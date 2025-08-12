@@ -1,10 +1,13 @@
 {% extends "base.html" %}
 {%load static%}
+
 {%block content%}
 <div class="container">
     <div class="d-flex justify-content-between align-items-center my-4">
-        <h1 class="m-0 text-light">Lista de Pagos</h1>
-        <a href="{% url 'admin:index' %}" class="btn btn-secondary">Ir al Admin de Django</a>
+        <h1 class="m-0 text-principal">Lista de Pagos</h1>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPaymentModal">
+            <i class="fas fa-plus me-1"></i> Añadir Pago Manual
+        </button>
     </div>
 
     <!-- Barra de Búsqueda -->
@@ -39,7 +42,6 @@
                             <th>Monto</th>
                             <th>Estado</th>
                             <th>Serial</th>
-                            <th>Verificación Respuesta</th>
                             <th>Referencia</th>
                             <th>Banco</th>
                             <th>Cantidad de tickets</th>
@@ -69,21 +71,29 @@
                                 {% endif %}
                             </td>
                             <td>{{ payment.serial }}</td>
-                            <td>{{ payment.payment_verification_note }}</td>
                             <td>{{ payment.reference }}</td>
-                            <td>{{ payment.bank_of_transfer }}</td>
-                            <td>{{ payment.tickets_quantity }}</td>
+                            <td>{{ payment.get_bank_of_transfer_display }}</td>
+                            <td class="text-center">{{ payment.tickets_quantity }}</td>
                             <td>
                                 {% if payment.state == 'E' %}
-                                    <button onclick="verifyPayment({{ payment.id }})" class="btn btn-sm btn-success"
+                                    <div class="row">
+                                       <div class="col-6">
+                                         <button onclick="verifyPayment({{ payment.id }})" class="btn btn-sm btn-success"
                                     data-csrf-token="{{ csrf_token }}"
                                     >Verificar</button>
+                                       </div>
+                                       <div class="col-6">
+                                              <button onclick="cancelPayment({{ payment.id }})" class="btn btn-sm btn-danger"
+                                    data-csrf-token="{{ csrf_token }}"
+                                    >Cancelar</button>
+                                       </div>
+                                    </div>
                                 {% endif %}
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="6" class="text-center">No hay pagos que coincidan con su búsqueda.</td>
+                            <td colspan="10" class="text-center">No hay pagos que coincidan con su búsqueda.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -121,7 +131,110 @@
     </nav>
     {% endif %}
 </div>
+
+<!-- Modal para Añadir Pago -->
+<div class="modal fade" id="addPaymentModal" tabindex="-1" aria-labelledby="addPaymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addPaymentModalLabel">Añadir Pago Manualmente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'payment_list' %}" id="add-payment-form">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.sorteo.id_for_label }}" class="form-label">{{ form.sorteo.label }}</label>
+                            {{ form.sorteo }}
+                            {% for error in form.sorteo.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.owner_name.id_for_label }}" class="form-label">{{ form.owner_name.label }}</label>
+                            {{ form.owner_name }}
+                            {% for error in form.owner_name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.type_CI.id_for_label }}" class="form-label">{{ form.type_CI.label }}</label>
+                            {{ form.type_CI }}
+                            {% for error in form.type_CI.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.owner_ci.id_for_label }}" class="form-label">{{ form.owner_ci.label }}</label>
+                            {{ form.owner_ci }}
+                            {% for error in form.owner_ci.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.owner_email.id_for_label }}" class="form-label">{{ form.owner_email.label }}</label>
+                            {{ form.owner_email }}
+                            {% for error in form.owner_email.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.owner_phone.id_for_label }}" class="form-label">{{ form.owner_phone.label }}</label>
+                            {{ form.owner_phone }}
+                            {% for error in form.owner_phone.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.method.id_for_label }}" class="form-label">{{ form.method.label }}</label>
+                            {{ form.method }}
+                            {% for error in form.method.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.bank_of_transfer.id_for_label }}" class="form-label">{{ form.bank_of_transfer.label }}</label>
+                            {{ form.bank_of_transfer }}
+                            {% for error in form.bank_of_transfer.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.reference.id_for_label }}" class="form-label">{{ form.reference.label }}</label>
+                        {{ form.reference }}
+                        {% for error in form.reference.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.transferred_date.id_for_label }}" class="form-label">{{ form.transferred_date.label }}</label>
+                            {{ form.transferred_date }}
+                            {% for error in form.transferred_date.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.transferred_amount.id_for_label }}" class="form-label">{{ form.transferred_amount.label }}</label>
+                            {{ form.transferred_amount }}
+                            {% for error in form.transferred_amount.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.tickets_quantity.id_for_label }}" class="form-label">{{ form.tickets_quantity.label }}</label>
+                            {{ form.tickets_quantity }}
+                            {% for error in form.tickets_quantity.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="add-payment-form" class="btn btn-primary">Guardar Pago</button>
+            </div>
+        </div>
+    </div>
+</div>
 {%endblock content%}
 {% block extra_js %}
 <script src="{% static 'js/payment_list.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Si el formulario se envió con errores, el servidor recargará la página
+    // y pasará la variable 'form_has_errors'. Usamos esto para reabrir el modal.
+    const formHasErrors = {{ form_has_errors|yesno:"true,false" }};
+    if (formHasErrors) {
+        const addPaymentModal = new bootstrap.Modal(document.getElementById('addPaymentModal'));
+        addPaymentModal.show();
+    }
+});
+</script>
 {% endblock extra_js %}

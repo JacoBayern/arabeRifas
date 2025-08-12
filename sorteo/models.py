@@ -1,6 +1,8 @@
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
+from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
+from django.utils.text import slugify
 import time
 # Create your models here.
 class Sorteo(models.Model):
@@ -14,16 +16,23 @@ class Sorteo(models.Model):
     title = models.CharField(('Titulo'),max_length=50)
     slug = models.SlugField(unique=True, max_length=110, editable=False)
     description = models.TextField(('Descripción'))
-    date_lottery = models.DateTimeField(("Fecha del Sorteo"), auto_now=False, auto_now_add=False)
+    date_lottery = models.DateTimeField(("Fecha del Sorteo"), auto_now=False, auto_now_add=False, null=True, blank=True)
+    date_lottery_text = models.CharField(
+        ("Texto alternativo para la fecha"),
+        max_length=150,
+        null=True, blank=True,
+        help_text="Ej: 'Al alcanzar el 80% de los tickets vendidos'. Usar si no se define una fecha específica."
+    )
     prize_picture = models.ImageField(("Foto del premio"), upload_to='premios/')
     ticket_price = models.DecimalField(("Precio del ticket"), max_digits=5, decimal_places=2)
     state = models.CharField(("Estado del sorteo"), choices=ESTATE, default='B', blank=False)
     total_tickets = models.PositiveIntegerField(("Máxima cantidad de tickets a vender"), blank=False)
     tickets_solds = models.PositiveIntegerField(("Tickets vendidos"), editable=False, default=0)
     lottery_conditions = models.TextField(("Condiciones del sorteo"))
+    minimun_tickets_buy = models.PositiveIntegerField(("Cantidad mínima de tickets a  comprar"), null=True, blank=True)
     video_promo = models.FileField(
         ("Video promocional"),
-        upload_to='videos_promocionales/',
+        upload_to='premios/',
         null=True,
         blank=True,
         help_text="Sube un video promocional del sorteo"
@@ -38,6 +47,44 @@ class Sorteo(models.Model):
         verbose_name = 'Sorteo'
         verbose_name_plural = 'Sorteos'
 
+    def clean(self):
+        """
+        Validación para asegurar que se defina la fecha o el texto alternativo, pero no ambos.
+        """
+        super().clean()
+        if self.date_lottery and self.date_lottery_text:
+            raise ValidationError("No se puede definir una fecha específica y un texto alternativo al mismo tiempo. Por favor, elija solo una opción.")
+        if not self.date_lottery and not self.date_lottery_text:
+            raise ValidationError("Debe especificar una fecha para el sorteo o un texto alternativo (ej: 'Al alcanzar el 80%').")
+
+    @property
+    def display_date(self):
+        """
+        Devuelve la fecha formateada o el texto alternativo para mostrar en las plantillas.
+        """
+        if self.date_lottery:
+            return self.date_lottery.strftime("%d/%m/%Y")
+        return self.date_lottery_text
+    
+    def percentage_sold(self):
+        if self.total_tickets > 0:
+            return (self.tickets_solds * 100) // self.total_tickets 
+        return 0
+
+    def save(self, *args, **kwargs):
+        """
+        Genera un slug único a partir del título si no existe.
+        """
+        if not self.slug:
+            base_slug = slugify(self.title)
+            slug = base_slug
+            counter = 1
+            while Sorteo.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.title
 
@@ -47,7 +94,6 @@ class Premio(models.Model):
     name = models.CharField("Nombre del premio", max_length=100)
     description = models.TextField("Descripción del premio")
     position = models.PositiveIntegerField("Orden", help_text="El orden en que se mostrará el premio (1, 2, 3...)")
-    image = models.ImageField("Foto del premio", upload_to='premios_fotos/', blank=True, null=True)
 
     class Meta:
         verbose_name = 'Premio'
@@ -124,7 +170,7 @@ class Payment(models.Model):
     owner_email = models.EmailField(("Correo del propietario"), max_length=254)
     owner_phone = PhoneNumberField(verbose_name='Telefono del propietario', region='VE')
     method = models.CharField(("Método de Pago"), max_length=50, choices=PAYMENT_METHODS)
-    reference = models.CharField(max_length=30)
+    reference = models.CharField(('Referencia'),max_length=30)
     state = models.CharField(("Estado"), max_length=50, choices=PAYMENT_STATES)
     created_at = models.DateTimeField(("Fecha de creación"), auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(("Ultima actualización"), auto_now=False, null=True, editable=False)

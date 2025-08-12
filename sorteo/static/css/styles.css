@@ -54,7 +54,7 @@
     background-color: var(--primary-color);
 }
 
-.bg-secondary{
+.bg-secondarycolor{
     background-color: var(--secondary-color);
 }
 
@@ -83,4 +83,20 @@
 
 .btn-verify:hover{
     background-color: #70a3d2;
+}
+
+.text-principal{
+    color: var(--primary-color);
+}
+
+/* --- Animación de aparición al hacer scroll --- */
+.scroll-reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.scroll-reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
 }

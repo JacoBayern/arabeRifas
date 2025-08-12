@@ -20,29 +20,129 @@
                     </div>
                 {% endif %}
 
-                {% for field in form %}
-                    <div class="mb-3">
-                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                        
-                        {% if field.name == 'is_main' %}
-                            <div class="form-check">
-                                {{ field | add_class:"form-control" }}
-                                <label class="form-check-label" for="{{ field.id_for_label }}">
-                                    Marcar como sorteo principal en la página de inicio.
-                                </label>
-                            </div>
-                        {% else %}
-                            {{ field | add_class:"form-control"  }}
-                        {% endif %}
+                <!-- Título -->
+                <div class="mb-3">
+                    <label for="{{ form.title.id_for_label }}" class="form-label">{{ form.title.label }}</label>
+                    {{ form.title|add_class:"form-control" }}
+                    {% for error in form.title.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
 
-                        {% if field.help_text %}
-                            <small class="form-text text-muted">{{ field.help_text }}</small>
-                        {% endif %}
-                        {% for error in field.errors %}
-                            <div class="invalid-feedback d-block">{{ error }}</div>
-                        {% endfor %}
+                <!-- Descripción -->
+                <div class="mb-3">
+                    <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
+                    {{ form.description|add_class:"form-control"|attr:"rows:4" }}
+                    {% for error in form.description.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+
+                <!-- Fila para Fechas -->
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.date_lottery.id_for_label }}" class="form-label">{{ form.date_lottery.label }}</label>
+                        {{ form.date_lottery|add_class:"form-control"|attr:"type:datetime-local" }}
+                        {% if form.date_lottery.help_text %}<small class="form-text text-muted">{{ form.date_lottery.help_text }}</small>{% endif %}
+                        {% for error in form.date_lottery.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                     </div>
-                {% endfor %}
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.date_lottery_text.id_for_label }}" class="form-label">{{ form.date_lottery_text.label }}</label>
+                        {{ form.date_lottery_text|add_class:"form-control" }}
+                        {% if form.date_lottery_text.help_text %}<small class="form-text text-muted">{{ form.date_lottery_text.help_text }}</small>{% endif %}
+                        {% for error in form.date_lottery_text.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    </div>
+                </div>
+
+                <!-- Fila para Tickets y Precio -->
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.ticket_price.id_for_label }}" class="form-label">{{ form.ticket_price.label }}</label>
+                        {{ form.ticket_price|add_class:"form-control" }}
+                        {% for error in form.ticket_price.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.total_tickets.id_for_label }}" class="form-label">{{ form.total_tickets.label }}</label>
+                        {{ form.total_tickets|add_class:"form-control" }}
+                        {% for error in form.total_tickets.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    </div>
+                </div>
+
+                <!-- Fila para Estado y Foto del Premio -->
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.state.id_for_label }}" class="form-label">{{ form.state.label }}</label>
+                        {{ form.state|add_class:"form-select" }}
+                        {% for error in form.state.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.prize_picture.id_for_label }}" class="form-label">{{ form.prize_picture.label }}</label>
+                        {{ form.prize_picture|add_class:"form-control" }}
+                        {% for error in form.prize_picture.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    </div>
+                </div>
+
+                <!-- Condiciones del sorteo -->
+                <div class="mb-3">
+                    <label for="{{ form.lottery_conditions.id_for_label }}" class="form-label">{{ form.lottery_conditions.label }}</label>
+                    {{ form.lottery_conditions|add_class:"form-control"|attr:"rows:4" }}
+                    {% for error in form.lottery_conditions.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+
+                <!-- Video promocional -->
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.video_promo.id_for_label }}" class="form-label">{{ form.video_promo.label }}</label>
+                        {{ form.video_promo|add_class:"form-control" }}
+                        {% if form.video_promo.help_text %}<small class="form-text text-muted">{{ form.video_promo.help_text }}</small>{% endif %}
+                        {% for error in form.video_promo.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    </div>
+                     <div class="col-md-6 mb-3">
+                        <label for="{{ form.minimun_tickets_buy.id_for_label }}" class="form-label">{{ form.minimun_tickets_buy.label }}</label>
+                        {{ form.minimun_tickets_buy|add_class:"form-control" }}
+                        {% for error in form.minimun_tickets_buy.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    </div>
+                
+                </div>
+                
+                
+
+                <!-- Checkbox Sorteo Principal -->
+                <div class="mb-3 form-check">
+                    {{ form.is_main|add_class:"form-check-input" }}
+                    <label class="form-check-label" for="{{ form.is_main.id_for_label }}">{{ form.is_main.label }}</label>
+                    {% if form.is_main.help_text %}<small class="form-text text-muted d-block">{{ form.is_main.help_text }}</small>{% endif %}
+                    {% for error in form.is_main.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+
+                <hr class="my-4">
+
+                <h3 class="mb-3">Premios del Sorteo</h3>
+
+                {{ premio_formset.management_form }}
+                
+                <div id="premio-form-list">
+                    {% for premio_form in premio_formset %}
+                    <div class="premio-form mb-3 p-3 border rounded">
+                        {{ premio_form.id }}
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                {{ premio_form.name.label_tag }}
+                                {{ premio_form.name }}
+                                {% for error in premio_form.name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                            </div>
+                            <div class="col-md-2">
+                                {{ premio_form.position.label_tag }}
+                                {{ premio_form.position }}
+                                {% for error in premio_form.position.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                            </div>
+                            <div class="col-md-6">
+                                {{ premio_form.description.label_tag }}
+                                {{ premio_form.description }}
+                                {% for error in premio_form.description.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                            </div>
+                        </div>
+                        {% if premio_form.instance.pk %}<div class="mt-2 form-check">{{ premio_form.DELETE }} <label class="form-check-label" for="{{ premio_form.DELETE.id_for_label }}">Eliminar este premio</label></div>{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                <button type="button" id="add-premio-form" class="btn btn-outline-success btn-sm mt-2">Añadir otro premio</button>
                 
                 <div class="d-flex justify-content-end mt-4">
                     <a href="{% url 'sorteo_list' %}" class="btn btn-secondary me-2">Cancelar</a>
@@ -52,4 +152,43 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const addFormBtn = document.getElementById('add-premio-form');
+    const formList = document.getElementById('premio-form-list');
+    const totalFormsInput = document.querySelector('#id_premios-TOTAL_FORMS');
+
+    // Busca el último formulario de la lista, que es el que está vacío gracias a `extra=1`.
+    const lastForm = formList.querySelector('.premio-form:last-child');
+    if (!lastForm) {
+        // Si no hay un formulario para clonar, oculta el botón. No debería pasar con tu configuración actual.
+        addFormBtn.style.display = 'none';
+        return;
+    }
+    // Usamos el HTML del último formulario como nuestra plantilla.
+    const formTemplateHtml = lastForm.outerHTML;
+
+    addFormBtn.addEventListener('click', function() {
+        let totalForms = parseInt(totalFormsInput.value);
+        // El nuevo formulario tendrá el índice `totalForms`. La plantilla tiene el índice `totalForms - 1`.
+        // Reemplazamos todas las ocurrencias del índice viejo por el nuevo.
+        let newFormHtml = formTemplateHtml.replace(new RegExp(`-${totalForms - 1}-`, 'g'), `-${totalForms}-`);
+        
+        const newElement = document.createElement('div');
+        newElement.innerHTML = newFormHtml;
+        const formToAdd = newElement.firstElementChild;
+
+        // Limpiamos los valores que el usuario pudo haber escrito en el formulario vacío antes de clonarlo.
+        formToAdd.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach(input => input.value = '');
+
+        formList.appendChild(formToAdd);
+        
+        // Incrementamos el contador de formularios en el management_form.
+        totalFormsInput.value = totalForms + 1;
+    });
+});
+</script>
 {% endblock %}

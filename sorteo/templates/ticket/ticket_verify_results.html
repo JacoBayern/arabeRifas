@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mis Boletos - ArabeRifa{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header text-center">
+                    <h1 class="h3 mb-0">Resultados de la Búsqueda</h1>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-center">Buscando boletos para: <strong>{{ query }}</strong></p>
+                    <hr>
+
+                    {% if tickets %}
+                        <h2 class="h5 mb-3">¡Estos son tus boletos!</h2>
+                        <div class="list-group">
+                            {% for ticket in tickets %}
+                                <div class="list-group-item list-group-item-action flex-column align-items-start mb-2 border rounded">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h5 class="mb-1">Boleto N°: <span class="text-primary">#{{ ticket.serial|stringformat:"05d" }}</span></h5>
+                                        <small class="text-muted">{{ ticket.created_at|date:"d/m/Y" }}</small>
+                                    </div>
+                                    <p class="mb-1"><strong>Sorteo:</strong> {{ ticket.sorteo.title }}</p>
+                                    <small>Recuerda tomar una captura de pantalla como respaldo.</small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning text-center" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            No se encontraron boletos asociados a "{{ query }}". Por favor, verifica que tu correo o cédula sean correctos.
+                        </div>
+                    {% endif %}
+
+                    <div class="text-center mt-4">
+                        <a href="{% url 'home' %}" class="btn btn-secondary">Realizar otra búsqueda</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

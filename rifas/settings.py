@@ -11,7 +11,9 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,12 +22,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-$t$7s(mpq$1@$hclfis#s=ckly44t4=%tnd*xkae=_-$g@pj-l'
+SECRET_KEY = os.getenv('SECRET_KEY_DJANGO')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
-ALLOWED_HOSTS = ['www.arabegana.com', 'arabegana.com', 'ArabeGana.pythonanywhere.com']
-
+ALLOWED_HOSTS = ['webapp-2714313.pythonanywhere.com',
+    'www.arabegana.com', 
+    'arabegana.com',
+]
+ 
 
 # Application definition
 
@@ -135,3 +140,22 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Configuración de archivos multimedia (subidos por el usuario)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Configuración HSTS (HTTP Strict Transport Security)
+SECURE_HSTS_SECONDS = 30 * 24 * 60 * 60  # 30 días en segundos
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+# Redirección SSL obligatoria
+SECURE_SSL_REDIRECT = True
+
+# Cookies seguras
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# Protección contra clickjacking
+X_FRAME_OPTIONS = 'DENY'
+
+# Protección XSS
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True

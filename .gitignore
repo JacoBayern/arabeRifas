@@ -5,9 +5,9 @@ db.sqlite3
 /media/
 /staticfiles/
 .DS_Store
-.mp4
-.png
-.jpg
+*.mp4
+*.png
+*.jpg
 # Archivos compilados de Python
 *.py[cod]
 __pycache__/

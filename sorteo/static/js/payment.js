@@ -68,10 +68,8 @@ function validateStep2() {
         isValid = false;
       }
     } else if (ciType === 'J') {
-      // Nota: El modelo Payment tiene max_length=8 para owner_ci.
-      // Si se necesita un RIF de 10 dígitos, se debe actualizar el modelo primero.
       if (!(ciValue.length >= 6 && ciValue.length <= 8)) {
-        showError(ciInput, 'El RIF jurídico debe tener entre 6 y 8 dígitos.');
+        showError(ciInput, 'El RIF jurídico debe tener 10 dígitos.');
         isValid = false;
       }
     }

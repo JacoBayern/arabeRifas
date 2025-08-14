@@ -107,7 +107,7 @@ class Premio(models.Model):
 class Ticket(models.Model):
     serial = models.PositiveIntegerField(("Número de ticket"))
     owner_name = models.CharField(("Nombre del propietario"), max_length=50)
-    owner_ci = models.CharField(('Cedula del propietario'),max_length=8, validators=[MinLengthValidator(6)])
+    owner_ci = models.CharField(('Cedula del propietario'),max_length=10, validators=[MinLengthValidator(6)])
     owner_email = models.EmailField(("Correo del propietario"), max_length=254)
     owner_phone = PhoneNumberField(verbose_name='Telefono del propietario', region='VE')
     sorteo = models.ForeignKey("sorteo.sorteo", verbose_name="Sorteo", on_delete=models.CASCADE, related_name='tickets', null=False, blank=False)
@@ -166,7 +166,7 @@ class Payment(models.Model):
         ('0191', 'BNC Banco Nacional de Crédito'),
     ]
     owner_name = models.CharField(("Nombre del propietario"), max_length=50)
-    owner_ci = models.CharField(('Cedula del propietario'),max_length=8, validators=[MinLengthValidator(6)])
+    owner_ci = models.CharField(('Cedula del propietario'),max_length=10, validators=[MinLengthValidator(6)])
     owner_email = models.EmailField(("Correo del propietario"), max_length=254)
     owner_phone = PhoneNumberField(verbose_name='Telefono del propietario', region='VE')
     method = models.CharField(("Método de Pago"), max_length=50, choices=PAYMENT_METHODS)
